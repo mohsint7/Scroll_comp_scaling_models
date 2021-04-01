@@ -67,7 +67,16 @@ def guess_comp_P(V_dis,Te=280,Tc=300,dt_sh=11.1,dt_sc=8.3,Ref='R410A',f=60, eta_
 
     # Evaporator and condenser pressure
     pe=P_sat(T=Te,Q=1,Ref=Ref)
-    pc=P_sat(T=Tc,Q=1,Ref=Ref)
+    if Ref=='R744' or 'carbondioxide':
+        # Evaporator and condenser pressure
+        pe=P_sat(T=Te,Q=1,Ref=Ref)
+        # calculation of optimum high side pressure for carbon dioxide
+
+        p_hp=(2.778-0.0157*(Te-273))*(T_out_cond-273)+0.381*(Te-273)-9.34     #calculated pressure is in bar and temperature used is in C
+        p_hp=p_hp*100                #bar to kPa
+        pc=p_hp
+    else:
+        pc=P_sat(T=Tc,Q=1,Ref=Ref)
 
     # Compressor inlet and Condenser outlet state
     inlet_state = State.State(Ref,{'T':T_in,'P':pe})
@@ -108,10 +117,19 @@ def Vdisp(Q_c=49,Te=280,Tc=300,dt_sh=11.1,dt_sc=8.3,Ref='R410A',eta_v=0.92,f=50)
     # Calculation of the compressor inlet and condenser outlet temperature
     T_in=Te+dt_sh
     T_out_cond=Tc-dt_sc
-
     # Evaporator and condenser pressure
     pe=P_sat(T=Te,Q=1,Ref=Ref)
-    pc=P_sat(T=Tc,Q=1,Ref=Ref)
+
+    if Ref=='R744' or 'carbondioxide':
+        # Evaporator and condenser pressure
+        pe=P_sat(T=Te,Q=1,Ref=Ref)
+        # calculation of optimum high side pressure for carbon dioxide
+
+        p_hp=(2.778-0.0157*(Te-273))*(T_out_cond-273)+0.381*(Te-273)-9.34     #calculated pressure is in bar and temperature used is in C
+        p_hp=p_hp*100                #bar to kPa
+        pc=p_hp
+    else:
+        pc=P_sat(T=Tc,Q=1,Ref=Ref)
 
     # Compressor inlet and Condenser outlet state
     inletState = State.State(Ref,{'T':T_in,'P':pe})
@@ -366,7 +384,7 @@ def stacked_plot(n_plots,n_curves,ydata,xdata,ylabel,xlabel,limits,legend_param,
 
 
             #ax[i].grid()
-            ax[i].plot(xdata, ydata2, color=color.next(), linestyle=linestyle.next(),label=label)
+            ax[i].plot(xdata, ydata2, color=next(color), linestyle=next(linestyle),label=label)
 
 
         wrap_label_string = '\n'.join(textwrap.wrap(ylabel[i],15))
